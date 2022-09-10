@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+imagePullSecrets:
+  - name: TODO
+metadata:
+  name: webhook-forwarder-service-account
+  namespace: webhook-forwarder
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-forwarder
+  namespace: webhook-forwarder
+spec:
+  template:
+    metadata:
+      name: webhook-forwarder
+    spec:
+      serviceAccountName: webhook-forwarder-service-account
+      containers:
+        - name: webhook-forwarder
+          image: TODO
+          env:
+            - name: TARGET_SERVICE_NAME
+              value: TODO
+            - name: WEBHOOK_DESTINATION_ENDPOINT
+              value: TODO # e.g. "api/webhook"
+            - name: HEADERS_TO_FORWARD
+              value: TODO # e.g. "stripe-signature,content-type"
+            - name: IGNORE_DESTINATION_SSL_ERRORS
+              value: "true"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: stripe-credentials
+  namespace: webhook-forwarder
+type: Opaque
+data:
+  apiKey: TODO # Remember to use base64
+
+

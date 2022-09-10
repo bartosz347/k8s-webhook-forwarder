@@ -1,3 +1,5 @@
 .idea
 node_modules
 dist
+
+k8s/webhook-forwarder-user-config.yaml
