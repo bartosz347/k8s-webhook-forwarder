@@ -21,7 +21,7 @@ spec:
       serviceAccountName: webhook-forwarder-service-account
       containers:
         - name: webhook-forwarder
-          image: TODO
+#          image: TODO # optionally set your own image
           env:
             - name: TARGET_SERVICE_NAME
               value: TODO

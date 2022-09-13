@@ -78,6 +78,7 @@ spec:
               value: _set_with_kustomize_
             - name: IGNORE_DESTINATION_SSL_ERRORS
               value: "false"
+          image: ghcr.io/bartosz347/webhook-forwarder:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
