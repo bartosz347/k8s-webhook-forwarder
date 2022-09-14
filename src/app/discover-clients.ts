@@ -48,7 +48,7 @@ const shouldRefreshClientsList = (clientsList: ClientsList): boolean => (
 const getStaticClients = (apiPath: string): string[] =>
   config.get().staticClients.map(client => `${client}/${apiPath}`)
 
-const initKubernetesClient = () => {
+const initKubernetesClient = (): CoreV1Api => {
   const kubeConfig = new KubeConfig()
 
   // Access API via a service account

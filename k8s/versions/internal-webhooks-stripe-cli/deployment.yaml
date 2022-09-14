@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-forwarder
+  namespace: webhook-forwarder
+spec:
+  template:
+    spec:
+      containers:
+        - name: stripe-cli
+          env:
+            - name: STRIPE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stripe-credentials
+                  key: apiKey
+          image: stripe/stripe-cli:latest
+          imagePullPolicy: IfNotPresent
+          args: [ "listen", "--forward-to", "localhost:8000/webhook-listener", "--api-key", "$(STRIPE_API_KEY)" ]

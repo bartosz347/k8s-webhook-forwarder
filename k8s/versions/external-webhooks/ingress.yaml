@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webhook-forwarder-ingress
+  namespace: webhook-forwarder
+#  annotations:
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: _set_with_kustomize_
+  rules:
+    - http:
+        paths:
+          - path: /webhook-listener
+            pathType: Prefix
+            backend:
+              service:
+                name: webhook-forwarder-svc
+                port:
+                  number: 8000

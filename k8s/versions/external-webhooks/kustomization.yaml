@@ -2,7 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - "./webhook-forwarder.yaml"
+  - "../../base"
+  - "./service.yaml"
+  - "./ingress.yaml"
+
 patchesStrategicMerge:
   - "./webhook-forwarder-user-config.yaml"
 

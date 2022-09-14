@@ -2,4 +2,4 @@
 node_modules
 dist
 
-k8s/webhook-forwarder-user-config.yaml
+k8s/**/webhook-forwarder-user-config.yaml

@@ -45,7 +45,7 @@ export const forwardEvent = async ({
     if (error instanceof Error) {
       logger.error(`Forwarding error: ${error.message}`)
     } else {
-      logger.error(`Forwarding unknown error: ${error}`)
+      throw error
     }
   }
 }
