@@ -1,12 +1,20 @@
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node'
 import { truthyFilter } from '../tools/truthy-filter'
 import { logger } from '../tools/logger'
+import config from '../config'
 
 const REFRESH_INTERVAL_MS = 4 * 60 * 1000
 
 interface ClientsList {
   clients: string[]
   lastUpdate: Date | null
+}
+
+export interface ClientDiscoveryConfig {
+  apiPath: string
+  targetServiceName: string
+  staticClientsMode: boolean
+  staticClients: string[]
 }
 
 const discoverClients = (): () => Promise<string[]> => {
@@ -19,9 +27,9 @@ const discoverClients = (): () => Promise<string[]> => {
     if (shouldRefreshClientsList(clientsList)) {
       logger.debug('Updating clients list')
 
-      clientsList.clients = process.env.STATIC_CLIENTS_MODE === 'true'
-        ? getStaticClients()
-        : await getClientsFromKubernetes()
+      clientsList.clients = config.get().staticClientsMode
+        ? getStaticClients(config.get().apiPath)
+        : await getClientsFromKubernetes(config.get().targetServiceName, config.get().apiPath)
       clientsList.lastUpdate = new Date()
 
       logger.debug(`Clients found:\n\t${clientsList.clients.join('\n\t')}`)
@@ -37,10 +45,8 @@ const shouldRefreshClientsList = (clientsList: ClientsList): boolean => (
   clientsList.lastUpdate === null || (clientsList.lastUpdate.getTime() + REFRESH_INTERVAL_MS) < new Date().getTime()
 )
 
-const getStaticClients = (): string[] =>
-  process.env.STATIC_CLIENT !== null && process.env.STATIC_CLIENT !== undefined && process.env.STATIC_CLIENT !== ''
-    ? [process.env.STATIC_CLIENT]
-    : []
+const getStaticClients = (apiPath: string): string[] =>
+  config.get().staticClients.map(client => `${client}/${apiPath}`)
 
 const initKubernetesClient = () => {
   const kubeConfig = new KubeConfig()
@@ -51,12 +57,10 @@ const initKubernetesClient = () => {
   return kubeConfig.makeApiClient(CoreV1Api)
 }
 
-const getClientsFromKubernetes = async (): Promise<string[]> => {
+const getClientsFromKubernetes = async (targetServiceName: string, apiPath: string): Promise<string[]> => {
   // TODO: confirm domain
   const clusterDomain = 'cluster.local'
-  const fieldSelector = `metadata.name=${process.env.TARGET_SERVICE_NAME}`
-
-  const endpoint = process.env.WEBHOOK_DESTINATION_ENDPOINT
+  const fieldSelector = `metadata.name=${targetServiceName}`
 
   const k8sApi = initKubernetesClient()
   const services = await k8sApi.listServiceForAllNamespaces(false, undefined, fieldSelector)
@@ -75,7 +79,7 @@ const getClientsFromKubernetes = async (): Promise<string[]> => {
       serviceName,
       namespace,
       ports
-    }) => `http://${serviceName}.${namespace}.svc.${clusterDomain}:${ports?.at(0)?.port}/${endpoint}`)
+    }) => `http://${serviceName}.${namespace}.svc.${clusterDomain}:${ports?.at(0)?.port}/${apiPath}`)
 }
 
 export default discoverClients()

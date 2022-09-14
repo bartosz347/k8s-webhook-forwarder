@@ -2,6 +2,7 @@ import * as https from 'https'
 import { logger } from '../tools/logger'
 import fetch, { Response } from 'node-fetch'
 import { IncomingHttpHeaders } from 'http'
+import config from '../config'
 
 type HeaderName = string
 
@@ -11,6 +12,11 @@ export interface Event {
   headers: IncomingHttpHeaders
 }
 
+export interface EventForwardingConfig {
+  headersToForward: HeaderName[]
+  ignoreDestinationSslErrors: boolean
+}
+
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false
 })
@@ -18,15 +24,15 @@ const httpsAgent = new https.Agent({
 export const forwardEvent = async ({
   rawBody,
   headers
-}: Event, receivers: string[], headersToForward: HeaderName[]): Promise<void> => {
+}: Event, receivers: string[]): Promise<void> => {
   const pendingForwards = receivers.map(async (address) => {
     logger.debug(`Forwarding to ${address}`)
 
     return await fetch(address, {
       method: 'POST',
       body: rawBody,
-      headers: prepareHeaders(headers, headersToForward),
-      ...((process.env.IGNORE_DESTINATION_SSL_ERRORS === 'true') && { agent: httpsAgent })
+      headers: prepareHeaders(headers, config.get().headersToForward),
+      ...((config.get().ignoreDestinationSslErrors) && { agent: httpsAgent })
     })
   })
 

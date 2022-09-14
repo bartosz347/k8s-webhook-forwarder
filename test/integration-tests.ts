@@ -3,10 +3,18 @@ import nock from 'nock'
 import request from 'supertest'
 import { Server } from 'http'
 import app from '../src/api/init-server'
+import config from '../src/config'
 
 const test = anyTest as TestFn<{server: Server}>
 
 test.before(async t => {
+  process.env.WEBHOOK_DESTINATION_ENDPOINT = 'api/webhook'
+  process.env.STATIC_CLIENTS_MODE = 'true'
+  process.env.STATIC_CLIENT = 'http://localhost:4000'
+  process.env.HEADERS_TO_FORWARD = 'stripe-signature,content-type'
+  process.env.TARGET_SERVICE_NAME = 'na'
+  config.init()
+
   t.context.server = app.listen()
 })
 
@@ -15,10 +23,6 @@ test.after.always(t => {
 })
 
 test('receive and forward webhook', async t => {
-  process.env.STATIC_CLIENTS_MODE = 'true'
-  process.env.STATIC_CLIENT = 'http://localhost:4000/api/webhook'
-  process.env.HEADERS_TO_FORWARD = 'stripe-signature,content-type'
-
   const scope = nock('http://localhost:4000', {
     reqheaders: {
       'stripe-signature': 'signature'

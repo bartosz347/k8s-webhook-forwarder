@@ -6,5 +6,5 @@ export const webhookListener = async (event: Event): Promise<void> => {
 
   const clients = await discoverClients()
 
-  void forwardEvent(event, clients, (process.env.HEADERS_TO_FORWARD ?? '').split(','))
+  void forwardEvent(event, clients)
 }
