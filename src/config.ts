@@ -1,5 +1,6 @@
 import { ClientDiscoveryConfig } from './app/discover-clients'
 import { EventForwardingConfig } from './app/forward-events'
+import * as process from 'process'
 
 type ConfigType = ClientDiscoveryConfig & EventForwardingConfig
 
@@ -21,10 +22,10 @@ export class Config {
   private getFromEnvs (): ConfigType {
     return {
       apiPath: this.getEnvValue('WEBHOOK_DESTINATION_ENDPOINT'),
-      targetServiceName: this.getEnvValue('TARGET_SERVICE_NAME'),
+      targetName: this.getEnvValue('TARGET_NAME'),
       headersToForward: this.getEnvValue('HEADERS_TO_FORWARD').split(','),
       ignoreDestinationSslErrors: process.env.IGNORE_DESTINATION_SSL_ERRORS === 'true',
-      staticClientsMode: process.env.STATIC_CLIENTS_MODE === 'true',
+      clientDiscoveryMode: this.getEnvValue('CLIENT_DISCOVERY_MODE') as 'SERVICE' | 'INGRESS' | 'STATIC',
       staticClients: (process.env.STATIC_CLIENT) !== undefined
         ? [process.env.STATIC_CLIENT]
         : []

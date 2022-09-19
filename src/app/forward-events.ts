@@ -38,9 +38,15 @@ export const forwardEvent = async ({
 
   try {
     const responses: Array<Awaited<Response>> = await Promise.all(pendingForwards)
-    logger.info(
-      responses.map((response: Response) => `Response received from URL: ${response.url}, status: ${response.status}`)
-    )
+
+    responses.map(async (response: Response) =>
+      response.ok
+        ? logger.info(
+          `Response received from URL: ${response.url}, status: ${response.status}`
+        )
+        : logger.warn(
+          `Response received from URL: ${response.url}, status: ${response.status}, response text: ${await response.text()}`
+        ))
   } catch (error) {
     if (error instanceof Error) {
       logger.error(`Forwarding error: ${error.message}`)

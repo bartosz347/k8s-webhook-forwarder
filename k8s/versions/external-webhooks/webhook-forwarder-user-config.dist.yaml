@@ -22,7 +22,9 @@ spec:
         - name: webhook-forwarder
 #          image: TODO # optionally set your own image
           env:
-            - name: TARGET_SERVICE_NAME
+            - name: CLIENT_DISCOVERY_MODE
+              value: TODO
+            - name: TARGET_NAME
               value: TODO
             - name: WEBHOOK_DESTINATION_ENDPOINT
               value: TODO # e.g. "api/webhook"

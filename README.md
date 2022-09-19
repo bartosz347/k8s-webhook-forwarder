@@ -38,15 +38,26 @@ discovery methods.
 
 ## Configuration
 
-| Environmental variable name   | Description                                                                                         | Example                      |
-|-------------------------------|-----------------------------------------------------------------------------------------------------|------------------------------|
-| LOG_LEVEL                     | Logging verbosity level                                                                             | `debug`                      |
-| HEADERS_TO_FORWARD            | Comma separated list of headers that should be forwarded                                            | `app-signature,content-type` |
-| TARGET_SERVICE_NAME           | Name of the destination service in K8s that should receive webhooks                                 | `backend-svc`                |
-| WEBHOOK_DESTINATION_ENDPOINT  | Path of the endpoint that should receive webhooks                                                   | `api/webhook`                |
-| IGNORE_DESTINATION_SSL_ERRORS | Ignore SSL errors when forwarding webhook to services                                               | `false`                      |
-| STATIC_CLIENT_MODE            | Useful for testing/debugging: use client set in `STATIC_CLIENT` instead of discovering K8s services | `false`                      |
-| STATIC_CLIENT                 | Set address that should receive webhooks                                                            | `http://localhost:4000`      |
+| Environmental variable name   | Description                                                                                                                                                                                                            | Example                      |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------|
+| LOG_LEVEL                     | Logging verbosity level                                                                                                                                                                                                | `debug`                      |
+| HEADERS_TO_FORWARD            | Comma separated list of headers that should be forwarded                                                                                                                                                               | `app-signature,content-type` |
+| TARGET_NAME                   | Name of the destination service/ingress in K8s that should receive webhooks (see `CLIENT_DISCOVERY_MODE` to choose between service and ingress)                                                                        | `backend-svc`                |
+| WEBHOOK_DESTINATION_ENDPOINT  | Path of the endpoint that should receive webhooks                                                                                                                                                                      | `api/webhook`                |
+| IGNORE_DESTINATION_SSL_ERRORS | Ignore SSL errors when forwarding webhook to services                                                                                                                                                                  | `false`                      |
+| CLIENT_DISCOVERY_MODE         | Determines how clients are discovered. Available modes: `SERVICE` – discovers K8s services, `INGRESS` – discovers hosts in K8s ingresses, `STATIC` – uses client set in `STATIC_CLIENT` (useful for testing/debugging) | `SERVICE`                    |
+| STATIC_CLIENT                 | Set address that should receive webhooks                                                                                                                                                                               | `http://localhost:4000`      |
+
+#### Note: ingress mode
+
+When using the `INGRESS` discovery mode, you may encounter issues/limitations, e.g. SSL termination may not work while
+accessing pods via a managed load balancer from inside the cluster. Check out the following links for further
+explanations/solutions:
+
+- [Issue reported in K8s repo](https://github.com/kubernetes/kubernetes/issues/66607)
+- [Another issue](https://github.com/kubernetes/enhancements/issues/1860)
+- [Workaround for Digital Ocean Kubernetes](https://github.com/digitalocean/digitalocean-cloud-controller-manager/blob/master/docs/controllers/services/examples/README.md#accessing-pods-over-a-managed-load-balancer-from-inside-the-cluster)
+- [Other community solution](https://github.com/compumike/hairpin-proxy)
 
 # Building & running
 
@@ -66,5 +77,7 @@ npm test
 # Other possible solutions
 
 It's worth to mention some other methods that can also be sufficient in some situation:
+
 - Nginx mirroring module: [ngx_http_mirror_module module](https://nginx.org/en/docs/http/ngx_http_mirror_module.html)
-- In case of services that provide tools for forwarding webhooks to local destinations: running instance of the tool as a sidecar container for each webhook receiver 
+- In case of services that provide tools for forwarding webhooks to local destinations: running instance of the tool as
+  a sidecar container for each webhook receiver 

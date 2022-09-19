@@ -9,10 +9,10 @@ const test = anyTest as TestFn<{server: Server}>
 
 test.before(async t => {
   process.env.WEBHOOK_DESTINATION_ENDPOINT = 'api/webhook'
-  process.env.STATIC_CLIENTS_MODE = 'true'
+  process.env.CLIENT_DISCOVERY_MODE = 'STATIC'
   process.env.STATIC_CLIENT = 'http://localhost:4000'
   process.env.HEADERS_TO_FORWARD = 'stripe-signature,content-type'
-  process.env.TARGET_SERVICE_NAME = 'na'
+  process.env.TARGET_NAME = 'na'
   config.init()
 
   t.context.server = app.listen()
