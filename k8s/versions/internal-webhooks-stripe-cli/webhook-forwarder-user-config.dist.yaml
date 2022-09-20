@@ -30,7 +30,8 @@ spec:
       serviceAccountName: webhook-forwarder-service-account
       containers:
         - name: webhook-forwarder
-#          image: TODO # optionally set your own image
+#          # Optional – set your own image
+#          image: TODO
           env:
             - name: CLIENT_DISCOVERY_MODE
               value: TODO
@@ -42,3 +43,6 @@ spec:
               value: TODO # e.g. "stripe-signature,content-type"
             - name: IGNORE_DESTINATION_SSL_ERRORS
               value: "false"
+#            # Optional
+#            - name: HEADERS_TO_ADD
+#              value: 'key:value'

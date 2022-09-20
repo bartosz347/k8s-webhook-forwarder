@@ -14,6 +14,7 @@ export interface Event {
 
 export interface EventForwardingConfig {
   headersToForward: HeaderName[]
+  headersToAdd: { [key: HeaderName]: string }
   ignoreDestinationSslErrors: boolean
 }
 
@@ -61,10 +62,10 @@ const prepareHeaders = (receivedHeaders: IncomingHttpHeaders, headersToForward: 
     .filter((key) => headersToForward.includes(key))
     .filter((key) => Boolean(receivedHeaders[key]))
     .reduce((obj, key) => {
-      const headerValue = receivedHeaders[key]
+      const headerValue = receivedHeaders[key] ?? []
 
       return {
         ...obj,
         [key]: Array.isArray(headerValue) ? headerValue.join(',') : headerValue
       }
-    }, {})
+    }, config.get().headersToAdd ?? {})

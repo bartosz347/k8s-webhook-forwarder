@@ -20,10 +20,15 @@ export class Config {
   }
 
   private getFromEnvs (): ConfigType {
+    const headersToAdd = this.getEnvValue('HEADERS_TO_ADD', '')
+
     return {
       apiPath: this.getEnvValue('WEBHOOK_DESTINATION_ENDPOINT'),
       targetName: this.getEnvValue('TARGET_NAME'),
       headersToForward: this.getEnvValue('HEADERS_TO_FORWARD').split(','),
+      headersToAdd: headersToAdd !== ''
+        ? Object.fromEntries(headersToAdd.split(',').map((header) => header.split(':')))
+        : {},
       ignoreDestinationSslErrors: process.env.IGNORE_DESTINATION_SSL_ERRORS === 'true',
       clientDiscoveryMode: this.getEnvValue('CLIENT_DISCOVERY_MODE') as 'SERVICE' | 'INGRESS' | 'STATIC',
       staticClients: (process.env.STATIC_CLIENT) !== undefined
@@ -32,10 +37,13 @@ export class Config {
     }
   }
 
-  private getEnvValue (key: string): string {
+  private getEnvValue (key: string, defaultValue?: string): string {
     const value = process.env[key]
 
     if (value === undefined || value === null || value === '') {
+      if (defaultValue !== undefined) {
+        return defaultValue
+      }
       throw Error(`Required config parameter not provided or invalid: ${key}`)
     }
 
