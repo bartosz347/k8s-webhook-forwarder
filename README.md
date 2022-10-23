@@ -15,10 +15,12 @@ refreshed, which makes the app suitable for use with temporary preview environme
 There are 2 versions of the deployment configuration:
 
 1. **External** (`k8s/versions/external-webhooks`) – handles external webhooks (sent from the Internet)
+   ![](docs/external-webhooks.png)
 2. **Internal** (`k8s/versions/internal-webhooks-stripe-cli`) – uses cluster-internal source of webhooks, e.g. an app
    that generates webhooks. Version presented in the repository is built
    for [Stripe CLI](https://stripe.com/docs/webhooks/test) but after minor adjustments can be used with other similar
    services too.
+   ![](docs/internal-webhooks.png)
 
 Both versions assume that services that should receive webhooks are defined as services with common name, possibly in
 different namespaces.  
